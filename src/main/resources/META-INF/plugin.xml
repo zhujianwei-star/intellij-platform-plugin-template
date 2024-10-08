@@ -49,6 +49,13 @@
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
 
+        <group id="ChangeSpringProfile.Toolbar">
+
+            <action class="com.github.zhujianweistar.change.spring.profile.actions.RefreshAction"/>
+
+            <separator text="Separator"/>
+
+        </group>
         <!--<action id="Tool.GotoRequestService"
                 class="com.github.zhujianweistar.change.spring.profile.view.search.GotoRequestAction">
             <add-to-group group-id="GoToTargetEx" anchor="first"/>

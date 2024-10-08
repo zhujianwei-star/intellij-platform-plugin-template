@@ -65,21 +65,6 @@ public class RightToolWindow extends JPanel {
         splitter.setFirstComponent(this.runConfigurationTree);
         this.add(splitter, BorderLayout.CENTER);
 
-        // 获取当前项目的 RunManager
-        RunManager runManager = RunManager.getInstance(project);
-
-        // 获取所有运行配置
-        List<RunConfiguration> configurations = runManager.getAllConfigurationsList();
-
-
-        // 遍历所有配置并打印信息
-        for (RunConfiguration configuration : configurations) {
-            System.out.println("Configuration Name: " + configuration.getName());
-            System.out.println("Configuration Type: " + configuration.getType());
-            System.out.println("Configuration Factory: " + configuration.getFactory());
-            System.out.println("Configuration Module: " + configuration.getConfigurationEditor());
-        }
-
         initEvent();
 
         DumbService.getInstance(project).smartInvokeLater(this::firstLoad);

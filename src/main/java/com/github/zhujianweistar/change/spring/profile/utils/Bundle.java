@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 public class Bundle extends AbstractBundle {
 
     @NonNls
-    public static final String BUNDLE = "messages.RunConfigurationBundle";
+    public static final String BUNDLE = "messages.ChangeSpringProfileBundle";
 
     @NotNull
     private static final Bundle INSTANCE = new Bundle(BUNDLE);
