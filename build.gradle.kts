@@ -4,11 +4,16 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java") // Java support
-    alias(libs.plugins.kotlin) // Kotlin support
+    /*alias(libs.plugins.kotlin) // Kotlin support
     alias(libs.plugins.intelliJPlatform) // IntelliJ Platform Gradle Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
-    alias(libs.plugins.kover) // Gradle Kover Plugin
+    alias(libs.plugins.kover) // Gradle Kover Plugin*/
+    id("org.jetbrains.changelog") version "2.2.1" // IntelliJ Platform Gradle Plugin
+    id("org.jetbrains.kotlin.jvm") version "1.9.25" // Gradle Qodana Plugin
+    id("org.jetbrains.intellij.platform") version "2.1.0" // Kotlin support
+    id("org.jetbrains.qodana") version "2024.1.9" // Kotlin support
+    id("org.jetbrains.kotlinx.kover") version "0.8.3" // Kotlin support
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -43,11 +48,25 @@ dependencies {
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
+        bundledPlugin("com.intellij.java")
+        bundledPlugin("com.intellij.properties")
+        bundledPlugin("org.jetbrains.plugins.yaml")
+        bundledPlugin("org.jetbrains.plugins.gradle")
+        bundledPlugin("com.intellij.spring")
+        bundledPlugin("com.intellij.spring.boot")
+
         instrumentationTools()
         pluginVerifier()
         zipSigner()
         testFramework(TestFrameworkType.Platform)
     }
+
+    testImplementation("junit:junit:4.13.2")
+
+    //noinspection SpellCheckingInspection
+    implementation("cn.hutool:hutool-all:5.3.9")
+
+    implementation("dom4j:dom4j:1.6.1")
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
@@ -101,11 +120,11 @@ intellijPlatform {
         channels = providers.gradleProperty("pluginVersion").map { listOf(it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" }) }
     }
 
-    pluginVerification {
-        ides {
-            recommended()
-        }
-    }
+//    pluginVerification {
+//        ides {
+//            recommended()
+//        }
+//    }
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin

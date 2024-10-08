@@ -1,18 +1,88 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>org.jetbrains.plugins.template</id>
-    <name>IntelliJ Platform Plugin Template</name>
-    <vendor>JetBrains</vendor>
+    <name>Change Spring Profile</name>
+    <vendor email="support @yourcompany.com" url="https://www.yourcompany.com">Your Company</vendor>
 
+    <description><![CDATA[
+        <p>This is a demo plugin for IntelliJ IDEA.</p>
+        <p>It provides a simple action that shows a message box with a message.</p>
+    ]]>
+    </description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.properties</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>com.intellij.spring</depends>
+    <depends>com.intellij.spring.boot</depends>
+    <depends>com.intellij.spring.boot.initializr</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow anchor="right"
+                    factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory"
+                    order="last"
+                    doNotActivateOnStart="true" icon="AllIcons.Toolwindows.ToolWindowProject"
+                    id="MyToolWindow"/>
+
+        <toolWindow id="ChangeSpringProfile" anchor="right"
+                    factoryClass="com.github.zhujianweistar.change.spring.profile.view.window.ChangeSpringProfileWindowFactory"
+                    order="last"
+                    doNotActivateOnStart="true" icon="AllIcons.Toolwindows.ToolWindowProject"
+                    canCloseContents="true"/>
+
+        <projectService serviceInterface="com.github.zhujianweistar.change.spring.profile.service.ToolWindowService"
+                        serviceImplementation="com.github.zhujianweistar.change.spring.profile.service.impl.ToolWindowServiceImpl"/>
     </extensions>
 
     <applicationListeners>
         <listener class="org.jetbrains.plugins.template.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
+
+    <actions>
+        <action id="com.github.zhujianweistar.demo.actions.DemoPluginActionJAVA" class="com.github.zhujianweistar.change.spring.profile.actions.ChangeSpringProfileAction" text="Change Plugin Action">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+
+        <!--<action id="Tool.GotoRequestService"
+                class="com.github.zhujianweistar.change.spring.profile.view.search.GotoRequestAction">
+            <add-to-group group-id="GoToTargetEx" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt SLASH"/>
+        </action>
+
+        <action id="RestfulTool.action.OptionForEditor-CurrentClassTree"
+                class="com.github.zhujianweistar.change.spring.profile.actions.dialog.CurrClassTreeAction">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+        <group id="RestfulTool.action.OptionForEditors"
+               class="com.github.zhujianweistar.change.spring.profile.actions.copy.OptionForEditorGroups">
+            <add-to-group group-id="EditorPopupMenu" anchor="after"
+                          relative-to-action="RestfulTool.action.OptionForEditor-CurrentClassTree"/>
+            <action id="RestfulTool.action.OptionForEditor-NavigationServiceTreeAction"
+                    class="com.github.zhujianweistar.change.spring.profile.actions.copy.NavigationServiceTreeAction"/>
+            <action id="RestfulTool.action.OptionForEditor-CopyApiPath"
+                    class="com.github.zhujianweistar.change.spring.profile.actions.copy.CopyApiAction"/>
+            <action id="RestfulTool.action.OptionForEditor-CopyFullPath"
+                    class="com.github.zhujianweistar.change.spring.profile.actions.copy.CopyFullAction"/>
+        </group>
+
+        <group id="RestfulTool.Toolbar">
+
+            <action class="com.github.zhujianweistar.change.spring.profile.actions.RefreshAction"/>
+
+            <reference ref="Tool.GotoRequestService"/>
+
+            <separator text="Separator"/>
+
+            <action class="com.github.zhujianweistar.change.spring.profile.actions.ScanFilterAction"/>
+
+            <action class="com.github.zhujianweistar.change.spring.profile.actions.WithLibraryAction"/>
+
+        </group>-->
+    </actions>
 </idea-plugin>
