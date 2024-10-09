@@ -110,7 +110,7 @@ public class RightToolWindow extends JPanel {
         PomUtil.clearCaches();
     }
 
-    public void navigationToView(@NotNull PsiMethod psiMethod) {
-        ChangeSpringProfileWindowFactory.showWindow(project, () -> runConfigurationTree.navigationToTree(psiMethod));
+    public void navigationToView(@NotNull String runConfigurationName) {
+        ChangeSpringProfileWindowFactory.showWindow(project, () -> runConfigurationTree.navigationToTree(runConfigurationName));
     }
 }

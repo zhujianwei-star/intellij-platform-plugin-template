@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.List;
 
 
 public class RunConfigurationBean {
@@ -19,13 +20,15 @@ public class RunConfigurationBean {
     private RunConfigurationType type;
     @NotNull
     private Icon icon = Icons.getTypeIcon(null);
+    private List<String> applicationYmlNames;
 
 
-    public RunConfigurationBean(RunConfigurationType type, @Nullable String configurationName, @Nullable NavigatablePsiElement psiElement, @NotNull com.intellij.openapi.module.Module module) {
+    public RunConfigurationBean(RunConfigurationType type, @Nullable String configurationName, @Nullable NavigatablePsiElement psiElement, @NotNull com.intellij.openapi.module.Module module, @Nullable List<String> applicationYmlNames) {
         this.setType(type);
         this.configurationName = configurationName;
         this.psiElement = psiElement;
         this.module = module;
+        this.applicationYmlNames = applicationYmlNames;
     }
 
     public void navigate(boolean requestFocus) {
@@ -40,6 +43,14 @@ public class RunConfigurationBean {
 
     public @Nullable RunConfigurationType getType() {
         return type;
+    }
+
+    public @Nullable List<String> getApplicationYmlNames() {
+        return applicationYmlNames;
+    }
+
+    public void setApplicationYmlNames(@NotNull List<String> applicationYmlNames) {
+        this.applicationYmlNames = applicationYmlNames;
     }
 
     public void setType(@Nullable RunConfigurationType type) {
@@ -76,7 +87,7 @@ public class RunConfigurationBean {
 
     @NotNull
     public RunConfigurationBean copyWithParent(@Nullable RunConfigurationBean parent) {
-        RunConfigurationBean request = new RunConfigurationBean(this.type, this.configurationName, this.psiElement, this.module);
+        RunConfigurationBean request = new RunConfigurationBean(this.type, this.configurationName, this.psiElement, this.module, this.applicationYmlNames);
         if (parent != null) {
             request.setParent(parent);
         }

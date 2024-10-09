@@ -16,10 +16,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
-import com.intellij.psi.NavigatablePsiElement;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBScrollPane;
@@ -56,7 +52,7 @@ public class RunConfigurationTree extends JBScrollPane {
      */
     private final Tree tree;
 
-    private final Map<String, RunConfigurationBeanNode> runConfigurationNodeMap;
+    private final Map<String, ListStringNode> runConfigurationNodeMap;
 
     @Nullable
     private ChooseRequestCallback chooseRequestCallback;
@@ -77,71 +73,6 @@ public class RunConfigurationTree extends JBScrollPane {
         this.setViewportView(tree);
 
         initEvent();
-    }
-
-    /**
-     * 渲染Restful请求列表
-     */
-    public void renderRequestTree(@NotNull Map<String, List<RunConfigurationBean>> allRequests) {
-        AtomicInteger apiCount = new AtomicInteger();
-        TreeNode<String> root = new TreeNode<>(Bundle.getString("service.tree.NotFoundAny"));
-
-        runConfigurationNodeMap.clear();
-        allRequests.forEach((itemName, requests) -> {
-            if (requests == null || requests.isEmpty()) {
-                return;
-            }
-            Map<String, List<RunConfigurationBean>> collect = new HashMap<>(1);
-            if (Settings.SystemOptionForm.SHOW_CLASS_SERVICE_TREE.getData()) {
-                collect = requests.stream().collect(Collectors.toMap(
-                        RunConfigurationBean::getConfigurationName,
-                        request -> new ArrayList<>(Collections.singletonList(request)),
-                        (list1, list2) -> {
-                            list1.addAll(list2);
-                            return list1;
-                        }
-                ));
-            } else {
-                collect.put(null, requests);
-            }
-
-            ModuleNode moduleNode = new ModuleNode(new ModuleTree(itemName, requests.size()));
-            collect.forEach((runConfigurationBeanName, items) -> {
-                if (runConfigurationBeanName != null) {
-                    TreeNode<String> node = new TreeNode<>(runConfigurationBeanName);
-                    items.forEach(request -> {
-                        RunConfigurationBeanNode runConfigurationBeanNode = new RunConfigurationBeanNode(request);
-                        if (request.getPsiElement() instanceof PsiMethod) {
-                            runConfigurationNodeMap.put(runConfigurationBeanName, runConfigurationBeanNode);
-                        }
-                        node.add(runConfigurationBeanNode);
-                        apiCount.incrementAndGet();
-                    });
-                    moduleNode.add(node);
-                } else {
-                    items.forEach(request -> {
-                        RunConfigurationBeanNode runConfigurationBeanNode = new RunConfigurationBeanNode(request);
-                        if (request.getPsiElement() instanceof PsiMethod) {
-                            runConfigurationNodeMap.put(null, runConfigurationBeanNode);
-                        }
-                        moduleNode.add(runConfigurationBeanNode);
-                        apiCount.incrementAndGet();
-                    });
-                }
-            });
-            root.add(moduleNode);
-        });
-
-        ((DefaultTreeModel) tree.getModel()).setRoot(root);
-
-        if (Settings.SystemOptionForm.EXPAND_OF_SERVICE_TREE.getData()) {
-            expandAll(new TreePath(tree.getModel().getRoot()), true);
-        }
-
-        // api数量小于1才显示根节点
-        tree.firePropertyChange(JTree.ROOT_VISIBLE_PROPERTY, tree.isRootVisible(), apiCount.get() < 1);
-        // api数量小于1则不可点击
-        tree.setEnabled(apiCount.get() > 0);
     }
 
     /**
@@ -174,22 +105,18 @@ public class RunConfigurationTree extends JBScrollPane {
             collect.forEach((runConfigurationBeanName, items) -> {
                 if (runConfigurationBeanName != null) {
                     TreeNode<String> node = new TreeNode<>(runConfigurationBeanName);
-                    items.forEach(request -> {
-                        RunConfigurationBeanNode runConfigurationBeanNode = new RunConfigurationBeanNode(request);
-                        if (request.getPsiElement() instanceof PsiMethod) {
-                            runConfigurationNodeMap.put(runConfigurationBeanName, runConfigurationBeanNode);
-                        }
-                        node.add(runConfigurationBeanNode);
+                    items.forEach(runConfigurationBean -> {
+                        ListStringNode ymlEnvNode = new ListStringNode(runConfigurationBean.getApplicationYmlNames());
+                        runConfigurationNodeMap.put(runConfigurationBeanName, ymlEnvNode);
+                        node.add(ymlEnvNode);
                         apiCount.incrementAndGet();
                     });
                     moduleNode.add(node);
                 } else {
-                    items.forEach(request -> {
-                        RunConfigurationBeanNode runConfigurationBeanNode = new RunConfigurationBeanNode(request);
-                        if (request.getPsiElement() instanceof PsiMethod) {
-                            runConfigurationNodeMap.put(null, runConfigurationBeanNode);
-                        }
-                        moduleNode.add(runConfigurationBeanNode);
+                    items.forEach(runConfigurationBean -> {
+                        ListStringNode ymlEnvNode = new ListStringNode(runConfigurationBean.getApplicationYmlNames());
+                        runConfigurationNodeMap.put(runConfigurationBeanName, ymlEnvNode);
+                        moduleNode.add(ymlEnvNode);
                         apiCount.incrementAndGet();
                     });
                 }
@@ -473,8 +400,8 @@ public class RunConfigurationTree extends JBScrollPane {
     /**
      * 转到tree
      */
-    public void navigationToTree(@NotNull PsiMethod psiMethod) {
-        RunConfigurationBeanNode runConfigurationBeanNode = runConfigurationNodeMap.get(psiMethod);
+    public void navigationToTree(@NotNull String runConfigurationName) {
+        ListStringNode runConfigurationBeanNode = runConfigurationNodeMap.get(runConfigurationName);
         if (runConfigurationBeanNode == null) {
             return;
         }
@@ -498,12 +425,12 @@ public class RunConfigurationTree extends JBScrollPane {
 
         private final T data;
 
-        public TreeNode(@NotNull T data) {
+        public TreeNode(@Nullable T data) {
             super(data);
             this.data = data;
         }
 
-        @NotNull
+        @Nullable
         public T getData() {
             return data;
         }
@@ -526,6 +453,12 @@ public class RunConfigurationTree extends JBScrollPane {
     public static class RunConfigurationBeanNode extends TreeNode<RunConfigurationBean> {
 
         public RunConfigurationBeanNode(@NotNull RunConfigurationBean data) {
+            super(data);
+        }
+    }
+
+    public static class ListStringNode extends TreeNode<List<String>> {
+        public ListStringNode(@Nullable List<String> data) {
             super(data);
         }
     }
