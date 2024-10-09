@@ -52,7 +52,7 @@ public class RunConfigurationTree extends JBScrollPane {
      */
     private final Tree tree;
 
-    private final Map<String, ListStringNode> runConfigurationNodeMap;
+    private final Map<RunConfigurationBean, StringNode> runConfigurationNodeMap;
 
     @Nullable
     private ChooseRequestCallback chooseRequestCallback;
@@ -87,38 +87,48 @@ public class RunConfigurationTree extends JBScrollPane {
             if (runConfigurationBeans == null || runConfigurationBeans.isEmpty()) {
                 return;
             }
-            Map<String, List<RunConfigurationBean>> collect = new HashMap<>(1);
+            Map<RunConfigurationBean, List<String>> collect = new HashMap<>(1);
             if (Settings.SystemOptionForm.SHOW_CLASS_SERVICE_TREE.getData()) {
                 collect = runConfigurationBeans.stream().collect(Collectors.toMap(
-                        RunConfigurationBean::getConfigurationName,
-                        runConfigurationBean -> new ArrayList<>(Collections.singletonList(runConfigurationBean)),
-                        (list1, list2) -> {
-                            list1.addAll(list2);
-                            return list1;
+                        runConfigurationBean -> runConfigurationBean,
+                        runConfigurationBean ->
+                                runConfigurationBean.getApplicationYmlNames() == null || runConfigurationBean.getApplicationYmlNames().isEmpty() ?
+                                        new ArrayList<>() : runConfigurationBean.getApplicationYmlNames(),
+                        (oldValue, newValue) -> {
+                            oldValue.addAll(newValue);
+                            return oldValue;
                         }
                 ));
             } else {
-                collect.put(null, runConfigurationBeans);
+                collect.put(null, runConfigurationBeans.stream()
+                        .map(RunConfigurationBean::getApplicationYmlNames)
+                        .filter(Objects::nonNull)
+                        .flatMap(List::stream)
+                        .collect(Collectors.toList()));
             }
 
             ModuleNode moduleNode = new ModuleNode(new ModuleTree(itemName, runConfigurationBeans.size()));
-            collect.forEach((runConfigurationBeanName, items) -> {
-                if (runConfigurationBeanName != null) {
-                    TreeNode<String> node = new TreeNode<>(runConfigurationBeanName);
-                    items.forEach(runConfigurationBean -> {
-                        ListStringNode ymlEnvNode = new ListStringNode(runConfigurationBean.getApplicationYmlNames());
-                        runConfigurationNodeMap.put(runConfigurationBeanName, ymlEnvNode);
-                        node.add(ymlEnvNode);
-                        apiCount.incrementAndGet();
-                    });
+            collect.forEach((configurationBean, items) -> {
+                if (configurationBean != null) {
+                    TreeNode<String> node = new TreeNode<>(configurationBean.getConfigurationName());
+                    if (items != null && !items.isEmpty()) {
+                        items.forEach(ymlName -> {
+                            StringNode ymlEnvNode = new StringNode(ymlName);
+                            runConfigurationNodeMap.put(configurationBean, ymlEnvNode);
+                            node.add(ymlEnvNode);
+                            apiCount.incrementAndGet();
+                        });
+                    }
                     moduleNode.add(node);
                 } else {
-                    items.forEach(runConfigurationBean -> {
-                        ListStringNode ymlEnvNode = new ListStringNode(runConfigurationBean.getApplicationYmlNames());
-                        runConfigurationNodeMap.put(runConfigurationBeanName, ymlEnvNode);
-                        moduleNode.add(ymlEnvNode);
-                        apiCount.incrementAndGet();
-                    });
+                    if (items != null && !items.isEmpty()) {
+                        items.forEach(ymlName -> {
+                            StringNode ymlEnvNode = new StringNode(ymlName);
+                            runConfigurationNodeMap.put(null, ymlEnvNode);
+                            moduleNode.add(ymlEnvNode);
+                            apiCount.incrementAndGet();
+                        });
+                    }
                 }
             });
             root.add(moduleNode);
@@ -401,12 +411,12 @@ public class RunConfigurationTree extends JBScrollPane {
      * 转到tree
      */
     public void navigationToTree(@NotNull String runConfigurationName) {
-        ListStringNode runConfigurationBeanNode = runConfigurationNodeMap.get(runConfigurationName);
-        if (runConfigurationBeanNode == null) {
+        StringNode ymlEnvNode = runConfigurationNodeMap.get(runConfigurationName);
+        if (ymlEnvNode == null) {
             return;
         }
         //有节点到根路径数组
-        javax.swing.tree.TreeNode[] nodes = ((DefaultTreeModel) tree.getModel()).getPathToRoot(runConfigurationBeanNode);
+        javax.swing.tree.TreeNode[] nodes = ((DefaultTreeModel) tree.getModel()).getPathToRoot(ymlEnvNode);
         TreePath path = new TreePath(nodes);
         tree.setSelectionPath(path);
     }
@@ -459,6 +469,12 @@ public class RunConfigurationTree extends JBScrollPane {
 
     public static class ListStringNode extends TreeNode<List<String>> {
         public ListStringNode(@Nullable List<String> data) {
+            super(data);
+        }
+    }
+
+    public static class StringNode extends TreeNode<String> {
+        public StringNode(@Nullable String data) {
             super(data);
         }
     }
