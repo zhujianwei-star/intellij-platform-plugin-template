@@ -17,6 +17,8 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.CheckboxTree;
+import com.intellij.ui.CheckedTreeNode;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -52,7 +54,7 @@ public class RunConfigurationTree extends JBScrollPane {
      */
     private final Tree tree;
 
-    private final Map<RunConfigurationBean, StringNode> runConfigurationNodeMap;
+    private final Map<RunConfigurationBean, CheckBoxTreeNode> runConfigurationNodeMap;
 
     @Nullable
     private ChooseRequestCallback chooseRequestCallback;
@@ -113,7 +115,11 @@ public class RunConfigurationTree extends JBScrollPane {
                     TreeNode<String> node = new TreeNode<>(configurationBean.getConfigurationName());
                     if (items != null && !items.isEmpty()) {
                         items.forEach(ymlName -> {
-                            StringNode ymlEnvNode = new StringNode(ymlName);
+                            CheckBoxTreeNode ymlEnvNode = new CheckBoxTreeNode(ymlName);
+                            ymlEnvNode.setChecked(true);
+                            ymlEnvNode.setAllowsChildren(false);
+                            ymlEnvNode.setUserObject(ymlName);
+                            ymlEnvNode.setEnabled(true);
                             runConfigurationNodeMap.put(configurationBean, ymlEnvNode);
                             node.add(ymlEnvNode);
                             apiCount.incrementAndGet();
@@ -123,7 +129,7 @@ public class RunConfigurationTree extends JBScrollPane {
                 } else {
                     if (items != null && !items.isEmpty()) {
                         items.forEach(ymlName -> {
-                            StringNode ymlEnvNode = new StringNode(ymlName);
+                            CheckBoxTreeNode ymlEnvNode = new CheckBoxTreeNode(ymlName);
                             runConfigurationNodeMap.put(null, ymlEnvNode);
                             moduleNode.add(ymlEnvNode);
                             apiCount.incrementAndGet();
@@ -411,7 +417,7 @@ public class RunConfigurationTree extends JBScrollPane {
      * 转到tree
      */
     public void navigationToTree(@NotNull String runConfigurationName) {
-        StringNode ymlEnvNode = runConfigurationNodeMap.get(runConfigurationName);
+        CheckedTreeNode ymlEnvNode = runConfigurationNodeMap.get(runConfigurationName);
         if (ymlEnvNode == null) {
             return;
         }
@@ -436,6 +442,22 @@ public class RunConfigurationTree extends JBScrollPane {
         private final T data;
 
         public TreeNode(@Nullable T data) {
+            super(data);
+            this.data = data;
+        }
+
+        @Nullable
+        public T getData() {
+            return data;
+        }
+    }
+
+
+    public static class CheckBoxTreeNode<T> extends CheckedTreeNode {
+
+        private final T data;
+
+        public CheckBoxTreeNode(@Nullable T data) {
             super(data);
             this.data = data;
         }
