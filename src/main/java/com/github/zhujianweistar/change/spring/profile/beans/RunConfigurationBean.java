@@ -55,7 +55,7 @@ public class RunConfigurationBean {
 
     public void setType(@Nullable RunConfigurationType type) {
         this.type = type;
-        this.icon = Icons.getTypeIcon(type);
+        this.icon = Icons.getTypeIcon(IconNameType.SPRINGBOOT);
     }
 
     public @Nullable String getConfigurationName() {
@@ -72,7 +72,7 @@ public class RunConfigurationBean {
     }
 
     public Icon getSelectIcon() {
-        return Icons.getTypeIcon(this.type, true);
+        return Icons.getTypeIcon(IconNameType.SPRINGBOOT, true);
     }
 
     public Module getModule() {

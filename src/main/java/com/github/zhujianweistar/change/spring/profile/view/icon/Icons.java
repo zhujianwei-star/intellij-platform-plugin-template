@@ -10,6 +10,7 @@
  */
 package com.github.zhujianweistar.change.spring.profile.view.icon;
 
+import com.github.zhujianweistar.change.spring.profile.beans.IconNameType;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationType;
 import com.github.zhujianweistar.change.spring.profile.beans.settings.Settings;
 import com.intellij.ui.IconManager;
@@ -38,16 +39,35 @@ public class Icons {
      * @return icon
      */
     @NotNull
-    public static Icon getTypeIcon(@Nullable RunConfigurationType type) {
+    public static Icon getTypeIcon(@Nullable IconNameType type) {
         return getTypeIcon(type, false);
     }
 
-    public static Icon getTypeIcon(@Nullable RunConfigurationType type, boolean selected) {
+    public static Icon getTypeIcon(@Nullable IconNameType type, boolean selected) {
         IconType iconType = Settings.IconTypeOptionForm.ICON_TYPE_SCHEME.getData();
-        type = type == null ? RunConfigurationType.SPRINGBOOT : type;
+        type = type == null ? IconNameType.SPRINGBOOT : type;
         if (selected) {
             return iconType.getSelectIcon(type);
         }
         return iconType.getDefaultIcon(type);
+    }
+
+    /**
+     * 获取方法对应的图标
+     *
+     * @param type 请求类型
+     * @return icon
+     */
+    @NotNull
+    public static Icon getCheckBoxIcon() {
+        return getCheckBoxIcon(false);
+    }
+
+    public static Icon getCheckBoxIcon(boolean selected) {
+        IconType iconType = new CuteIconType();
+        if (selected) {
+            return iconType.getSelectIcon(IconNameType.CHECKBOX);
+        }
+        return iconType.getDefaultIcon(IconNameType.CHECKBOX);
     }
 }

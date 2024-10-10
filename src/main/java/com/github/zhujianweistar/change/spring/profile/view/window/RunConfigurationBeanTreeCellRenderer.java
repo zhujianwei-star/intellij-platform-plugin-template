@@ -13,6 +13,7 @@ package com.github.zhujianweistar.change.spring.profile.view.window;
 import com.github.zhujianweistar.change.spring.profile.beans.ClassTree;
 import com.github.zhujianweistar.change.spring.profile.beans.ModuleTree;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationBean;
+import com.github.zhujianweistar.change.spring.profile.beans.YMLEnvBean;
 import com.github.zhujianweistar.change.spring.profile.view.window.frame.RunConfigurationTree;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -39,10 +40,12 @@ public class RunConfigurationBeanTreeCellRenderer extends ColoredTreeCellRendere
             ModuleTree data = node.getData();
             setIcon(data.getIcon());
             append(data.toString());
-        } else if (value instanceof RunConfigurationTree.RunConfigurationBeanNode) {
-            RunConfigurationTree.RunConfigurationBeanNode node = (RunConfigurationTree.RunConfigurationBeanNode) value;
-            RunConfigurationBean data = node.getData();
-            setMethodTypeAndPath(data, selected);
+        } else if (value instanceof RunConfigurationTree.CheckBoxTreeNode<?>) {
+            RunConfigurationTree.CheckBoxTreeNode node = (RunConfigurationTree.CheckBoxTreeNode) value;
+            Object data = node.getData();
+            if (data instanceof YMLEnvBean ymlEnvBean) {
+                setMethodTypeAndPath(ymlEnvBean, selected);
+            }
         } else if (value instanceof RunConfigurationTree.RunConfigurationBeanNode) {
             RunConfigurationTree.ControllerNode node = (RunConfigurationTree.ControllerNode) value;
             ClassTree data = node.getData();
@@ -55,7 +58,7 @@ public class RunConfigurationBeanTreeCellRenderer extends ColoredTreeCellRendere
         }
     }
 
-    private void setMethodTypeAndPath(@Nullable RunConfigurationBean node, boolean selected) {
+    private void setMethodTypeAndPath(@Nullable YMLEnvBean node, boolean selected) {
         if (node == null) {
             return;
         }
@@ -64,7 +67,7 @@ public class RunConfigurationBeanTreeCellRenderer extends ColoredTreeCellRendere
         } else {
             setIcon(node.getIcon());
         }
-        String path = node.getConfigurationName();
+        String path = node.getYmlEnvName();
         if (path != null) {
             append(path);
         }

@@ -10,6 +10,7 @@
  */
 package com.github.zhujianweistar.change.spring.profile.view.icon;
 
+import com.github.zhujianweistar.change.spring.profile.beans.IconNameType;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationType;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +32,7 @@ public abstract class IconType {
      * @return default
      */
     @NotNull
-    public abstract Icon getDefaultIcon(RunConfigurationType method);
+    public abstract Icon getDefaultIcon(IconNameType method);
 
     /**
      * 选中图标
@@ -40,7 +41,7 @@ public abstract class IconType {
      * @return select
      */
     @NotNull
-    public abstract Icon getSelectIcon(RunConfigurationType method);
+    public abstract Icon getSelectIcon(IconNameType method);
 
     /**
      * 获取默认图标列表

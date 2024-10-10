@@ -4,6 +4,7 @@ package com.github.zhujianweistar.change.spring.profile.view.window.frame;
 import com.github.zhujianweistar.change.spring.profile.beans.ClassTree;
 import com.github.zhujianweistar.change.spring.profile.beans.ModuleTree;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationBean;
+import com.github.zhujianweistar.change.spring.profile.beans.YMLEnvBean;
 import com.github.zhujianweistar.change.spring.profile.beans.settings.Settings;
 import com.github.zhujianweistar.change.spring.profile.service.Notify;
 import com.github.zhujianweistar.change.spring.profile.utils.Bundle;
@@ -17,7 +18,6 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.ui.CheckboxTree;
 import com.intellij.ui.CheckedTreeNode;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBScrollPane;
@@ -54,7 +54,7 @@ public class RunConfigurationTree extends JBScrollPane {
      */
     private final Tree tree;
 
-    private final Map<RunConfigurationBean, CheckBoxTreeNode> runConfigurationNodeMap;
+    private final Map<RunConfigurationBean, CheckBoxTreeNode<YMLEnvBean>> runConfigurationNodeMap;
 
     @Nullable
     private ChooseRequestCallback chooseRequestCallback;
@@ -115,7 +115,8 @@ public class RunConfigurationTree extends JBScrollPane {
                     TreeNode<String> node = new TreeNode<>(configurationBean.getConfigurationName());
                     if (items != null && !items.isEmpty()) {
                         items.forEach(ymlName -> {
-                            CheckBoxTreeNode ymlEnvNode = new CheckBoxTreeNode(ymlName);
+                            YMLEnvBean ymlEnvBean = new YMLEnvBean(ymlName);
+                            CheckBoxTreeNode<YMLEnvBean> ymlEnvNode = new CheckBoxTreeNode<>(ymlEnvBean);
                             ymlEnvNode.setChecked(true);
                             ymlEnvNode.setAllowsChildren(false);
                             ymlEnvNode.setUserObject(ymlName);
@@ -129,7 +130,8 @@ public class RunConfigurationTree extends JBScrollPane {
                 } else {
                     if (items != null && !items.isEmpty()) {
                         items.forEach(ymlName -> {
-                            CheckBoxTreeNode ymlEnvNode = new CheckBoxTreeNode(ymlName);
+                            YMLEnvBean ymlEnvBean = new YMLEnvBean(ymlName);
+                            CheckBoxTreeNode<YMLEnvBean> ymlEnvNode = new CheckBoxTreeNode<>(ymlEnvBean);
                             runConfigurationNodeMap.put(null, ymlEnvNode);
                             moduleNode.add(ymlEnvNode);
                             apiCount.incrementAndGet();
@@ -437,13 +439,14 @@ public class RunConfigurationTree extends JBScrollPane {
         void choose(@Nullable RunConfigurationBean runConfigurationBean);
     }
 
-    public static class TreeNode<T> extends DefaultMutableTreeNode {
+    public static class TreeNode<T> extends CheckedTreeNode {
 
         private final T data;
 
         public TreeNode(@Nullable T data) {
             super(data);
             this.data = data;
+            this.setEnabled(false);
         }
 
         @Nullable
@@ -453,18 +456,10 @@ public class RunConfigurationTree extends JBScrollPane {
     }
 
 
-    public static class CheckBoxTreeNode<T> extends CheckedTreeNode {
-
-        private final T data;
+    public static class CheckBoxTreeNode<T> extends TreeNode<T> {
 
         public CheckBoxTreeNode(@Nullable T data) {
             super(data);
-            this.data = data;
-        }
-
-        @Nullable
-        public T getData() {
-            return data;
         }
     }
 
@@ -497,6 +492,12 @@ public class RunConfigurationTree extends JBScrollPane {
 
     public static class StringNode extends TreeNode<String> {
         public StringNode(@Nullable String data) {
+            super(data);
+        }
+    }
+
+    public static class YMLEnvBeanNode extends TreeNode<YMLEnvBean> {
+        public YMLEnvBeanNode(@Nullable YMLEnvBean data) {
             super(data);
         }
     }

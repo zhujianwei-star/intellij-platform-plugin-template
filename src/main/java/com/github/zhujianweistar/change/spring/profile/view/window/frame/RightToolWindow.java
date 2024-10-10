@@ -76,7 +76,6 @@ public class RightToolWindow extends JPanel {
     private void initEvent() {
 
         project.getMessageBus().connect().subscribe(ServiceTreeTopic.TOPIC, runConfigurationTree::renderServiceTree);
-        // project.getMessageBus().connect().subscribe(RefreshServiceTreeTopic.TOPIC, this::refreshRequestTree);
     }
 
     private void firstLoad() {
