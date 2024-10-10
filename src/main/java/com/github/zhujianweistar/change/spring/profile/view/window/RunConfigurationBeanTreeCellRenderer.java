@@ -12,7 +12,6 @@ package com.github.zhujianweistar.change.spring.profile.view.window;
 
 import com.github.zhujianweistar.change.spring.profile.beans.ClassTree;
 import com.github.zhujianweistar.change.spring.profile.beans.ModuleTree;
-import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationBean;
 import com.github.zhujianweistar.change.spring.profile.beans.YMLEnvBean;
 import com.github.zhujianweistar.change.spring.profile.view.window.frame.RunConfigurationTree;
 import com.intellij.ui.ColoredTreeCellRenderer;
@@ -44,7 +43,7 @@ public class RunConfigurationBeanTreeCellRenderer extends ColoredTreeCellRendere
             RunConfigurationTree.CheckBoxTreeNode node = (RunConfigurationTree.CheckBoxTreeNode) value;
             Object data = node.getData();
             if (data instanceof YMLEnvBean ymlEnvBean) {
-                setMethodTypeAndPath(ymlEnvBean, selected);
+                setMethodTypeAndPath(node,ymlEnvBean, selected);
             }
         } else if (value instanceof RunConfigurationTree.RunConfigurationBeanNode) {
             RunConfigurationTree.ControllerNode node = (RunConfigurationTree.ControllerNode) value;
@@ -58,11 +57,11 @@ public class RunConfigurationBeanTreeCellRenderer extends ColoredTreeCellRendere
         }
     }
 
-    private void setMethodTypeAndPath(@Nullable YMLEnvBean node, boolean selected) {
+    private void setMethodTypeAndPath(RunConfigurationTree.CheckBoxTreeNode checkBoxTreeNode, @Nullable YMLEnvBean node, boolean selected) {
         if (node == null) {
             return;
         }
-        if (selected) {
+        if (checkBoxTreeNode.isChecked()) {
             setIcon(node.getSelectIcon());
         } else {
             setIcon(node.getIcon());
