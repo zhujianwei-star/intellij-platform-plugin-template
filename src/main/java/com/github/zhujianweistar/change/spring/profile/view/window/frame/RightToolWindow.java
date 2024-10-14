@@ -74,6 +74,7 @@ public class RightToolWindow extends JPanel {
      * 初始化事件
      */
     private void initEvent() {
+        this.runConfigurationTree.setChooseRequestCallback(changeDetail::chooseYmlEnv);
 
         project.getMessageBus().connect().subscribe(ServiceTreeTopic.TOPIC, runConfigurationTree::renderServiceTree);
     }

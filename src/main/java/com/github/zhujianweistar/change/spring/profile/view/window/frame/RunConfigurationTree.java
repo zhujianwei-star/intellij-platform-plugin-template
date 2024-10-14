@@ -112,7 +112,7 @@ public class RunConfigurationTree extends JBScrollPane {
             ModuleNode moduleNode = new ModuleNode(new ModuleTree(itemName, runConfigurationBeans.size()));
             collect.forEach((configurationBean, items) -> {
                 if (configurationBean != null) {
-                    TreeNode<String> node = new TreeNode<>(configurationBean.getConfigurationName());
+                    RunConfigurationBeanNode node = new RunConfigurationBeanNode(configurationBean);
                     if (items != null && !items.isEmpty()) {
                         items.forEach(ymlName -> {
                             YMLEnvBean ymlEnvBean = new YMLEnvBean(ymlName);
@@ -161,15 +161,15 @@ public class RunConfigurationTree extends JBScrollPane {
     private void initEvent() {
         // RequestTree子项点击监听
         tree.addTreeSelectionListener(e -> {
-            RunConfigurationBean nodeRunConfigurationBean = getTreeNodeRunConfigurationBean(tree);
+            YMLEnvBean ymlEnvBean = getTreeNodeYmlEnvBean(tree);
             if (chooseRequestCallback == null) {
                 return;
             }
-            if (nodeRunConfigurationBean == null) {
+            if (ymlEnvBean == null) {
                 chooseRequestCallback.choose(null);
                 return;
             }
-            chooseRequestCallback.choose(nodeRunConfigurationBean);
+            chooseRequestCallback.choose(ymlEnvBean);
         });
 
         // RequestTree子项双击监听
@@ -331,6 +331,19 @@ public class RunConfigurationTree extends JBScrollPane {
     }
 
     @Nullable
+    private YMLEnvBean getTreeNodeYmlEnvBean(@NotNull JTree tree) {
+        DefaultMutableTreeNode mutableTreeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        if (mutableTreeNode == null) {
+            return null;
+        }
+        Object userObject = mutableTreeNode.getUserObject();
+        if (userObject instanceof YMLEnvBean) {
+            return (YMLEnvBean) userObject;
+        }
+        return null;
+    }
+
+    @Nullable
     private ModuleTree getTreeNodeModuleTree(@NotNull JTree tree) {
         DefaultMutableTreeNode mutableTreeNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
         if (mutableTreeNode == null) {
@@ -434,9 +447,9 @@ public class RunConfigurationTree extends JBScrollPane {
         /**
          * 选择的Request项
          *
-         * @param runConfigurationBean runConfigurationBean
+         * @param ymlEnvBean ymlEnvBean
          */
-        void choose(@Nullable RunConfigurationBean runConfigurationBean);
+        void choose(@Nullable YMLEnvBean ymlEnvBean);
     }
 
     public static class TreeNode<T> extends CheckedTreeNode {
