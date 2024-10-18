@@ -10,36 +10,28 @@
  */
 package com.github.zhujianweistar.change.spring.profile.view.window.frame;
 
-import cn.hutool.http.*;
+import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationBean;
 import com.github.zhujianweistar.change.spring.profile.beans.YMLEnvBean;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.execution.RunManager;
+import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.impl.FileTypeRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.psi.PsiInvalidElementAccessException;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.ui.components.JBLabel;
+import com.intellij.spring.boot.run.SpringBootApplicationRunConfiguration;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
-import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.ui.JBUI;
-import org.intellij.lang.annotations.Language;
-import org.jdesktop.swingx.JXButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.psi.YAMLFile;
 
 import javax.swing.*;
+import javax.swing.tree.TreeNode;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -51,31 +43,8 @@ import java.util.regex.Pattern;
  */
 public class ChangeDetail extends JPanel {
 
-    private static final String IDENTITY_HEAD = "HEAD";
-    private static final String IDENTITY_BODY = "BODY";
     private final Project project;
     private final ThreadPoolExecutor poolExecutor;
-    /**
-     * 输入框 - url地址
-     */
-    private JTextField requestUrl;
-    /**
-     * 按钮 - 发送请求
-     */
-    private JButton sendRequest;
-    /**
-     * 选项卡面板 - 请求信息
-     */
-    private JBTabs tabs;
-    /**
-     * 文本域 - 请求体
-     */
-    private TabInfo bodyTab;
-    private ComboBox<FileType> requestBodyFileType;
-    /**
-     * 标签 - 显示返回结果
-     */
-    private TabInfo responseTab;
 
     private DetailHandle callback;
     /**
@@ -93,7 +62,7 @@ public class ChangeDetail extends JPanel {
                 new LinkedBlockingQueue<>(8),
                 new ThreadPoolExecutor.DiscardOldestPolicy()
         );
-        initView();
+        // initView();
 
         // initEvent();
     }
@@ -104,23 +73,6 @@ public class ChangeDetail extends JPanel {
         JPanel panelInput = new JPanel();
         add(panelInput, BorderLayout.NORTH);
         panelInput.setLayout(new BorderLayout(0, 0));
-
-
-        requestUrl = new JBTextField();
-        panelInput.add(requestUrl);
-        requestUrl.setColumns(45);
-
-        panelInput.add(sendRequest, BorderLayout.EAST);
-
-        tabs = new JBTabsImpl(project);
-
-
-        tabs.addTab(bodyTab);
-        tabs.addTab(responseTab);
-
-        add(tabs.getComponent(), BorderLayout.CENTER);
-
-        JPanel bodyFileTypePanel = new JPanel(new BorderLayout());
     }
 
     /**
@@ -129,7 +81,7 @@ public class ChangeDetail extends JPanel {
     private void initEvent() {
     }
 
-    public void chooseRequest(@Nullable YMLEnvBean ymlEnvBean) {
+    public void chooseYmlEnv(@Nullable YMLEnvBean ymlEnvBean) {
         this.ymlEnvBean = ymlEnvBean;
         String reqUrl = null;
         String reqHead = null;
@@ -138,6 +90,38 @@ public class ChangeDetail extends JPanel {
         try {
             if (ymlEnvBean != null) {
                 String ymlEnvName = ymlEnvBean.getYmlEnvName();
+                // 获取当前启动的SpringBoot实例，然后将profile改变，然后将图标改变
+
+                // 获取当前项目的 RunManager
+                RunManager runManager = RunManager.getInstance(project);
+                // 获取所有运行配置
+                java.util.List<RunConfiguration> configurations = runManager.getAllConfigurationsList();
+
+                java.util.List<RunConfigurationBean> runConfigurationBeans = new ArrayList<>(0);
+                // 遍历所有配置并修改运行文件
+                for (RunConfiguration configuration : configurations) {
+                    if (configuration instanceof SpringBootApplicationRunConfiguration springBootApplicationRunConfiguration) {
+                        springBootApplicationRunConfiguration.setActiveProfiles(ymlEnvName);
+                    }
+                }
+
+                // 修改图标
+                // 获取父节点
+                RunConfigurationTree.RunConfigurationBeanNode parent = ymlEnvBean.getParent();
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    TreeNode childAt = parent.getChildAt(i);
+                    if (childAt instanceof RunConfigurationTree.CheckBoxTreeNode<?> checkBoxTreeNode) {
+                        Object data = checkBoxTreeNode.getData();
+                        if (data instanceof YMLEnvBean nodeYmlEnvBean) {
+                            assert ymlEnvName != null;
+                            if (ymlEnvName.equals(ymlEnvBean.getYmlEnvName())) {
+                                checkBoxTreeNode.setChecked(true);
+                            } else {
+                                checkBoxTreeNode.setChecked(false);
+                            }
+                        }
+                    }
+                }
             }
         } catch (PsiInvalidElementAccessException e) {
             /*
@@ -148,8 +132,6 @@ public class ChangeDetail extends JPanel {
                 callback.handle();
             }
         }
-
-        requestUrl.setText(reqUrl);
     }
 
     public void setCallback(DetailHandle callback) {
@@ -157,7 +139,7 @@ public class ChangeDetail extends JPanel {
     }
 
     public void reset() {
-        this.chooseRequest(null);
+        this.chooseYmlEnv(null);
     }
 
 

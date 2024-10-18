@@ -1,10 +1,14 @@
 package com.github.zhujianweistar.change.spring.profile.beans;
 
 import com.github.zhujianweistar.change.spring.profile.view.icon.Icons;
+import com.github.zhujianweistar.change.spring.profile.view.window.frame.RunConfigurationTree;
+import com.intellij.openapi.module.Module;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -14,9 +18,20 @@ public class YMLEnvBean {
     private String ymlEnvName;
     @NotNull
     private Icon icon = Icons.getCheckBoxIcon();
+    @NotNull
+    private RunConfigurationTree.RunConfigurationBeanNode parent;
 
-    public YMLEnvBean(@Nullable String ymlEnvName) {
+    public YMLEnvBean(@Nullable String ymlEnvName, @NotNull Module module) {
         this.ymlEnvName = ymlEnvName;
+        List<String> ymlNames = new ArrayList<>();
+        ymlNames.add(ymlEnvName);
+        RunConfigurationBean runConfigurationBean = new RunConfigurationBean(RunConfigurationType.SPRINGBOOT, "null", null, module, ymlNames);
+        this.parent = new RunConfigurationTree.RunConfigurationBeanNode(runConfigurationBean);
+    }
+
+    public YMLEnvBean(@Nullable String ymlEnvName, @NotNull RunConfigurationTree.RunConfigurationBeanNode runConfigurationBeanNode) {
+        this.ymlEnvName = ymlEnvName;
+        this.parent = runConfigurationBeanNode;
     }
 
     public @Nullable String getYmlEnvName() {
@@ -25,6 +40,10 @@ public class YMLEnvBean {
 
     public void setYmlEnvName(@Nullable String ymlEnvName) {
         this.ymlEnvName = ymlEnvName;
+    }
+
+    public @NotNull RunConfigurationTree.RunConfigurationBeanNode getParent() {
+        return parent;
     }
 
     @NotNull

@@ -12,6 +12,7 @@ package com.github.zhujianweistar.change.spring.profile.view.window;
 
 import com.github.zhujianweistar.change.spring.profile.beans.ClassTree;
 import com.github.zhujianweistar.change.spring.profile.beans.ModuleTree;
+import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationBean;
 import com.github.zhujianweistar.change.spring.profile.beans.YMLEnvBean;
 import com.github.zhujianweistar.change.spring.profile.view.window.frame.RunConfigurationTree;
 import com.intellij.ui.ColoredTreeCellRenderer;
@@ -45,12 +46,18 @@ public class RunConfigurationBeanTreeCellRenderer extends ColoredTreeCellRendere
             if (data instanceof YMLEnvBean ymlEnvBean) {
                 setMethodTypeAndPath(node,ymlEnvBean, selected);
             }
-        } else if (value instanceof RunConfigurationTree.RunConfigurationBeanNode) {
+        } else if (value instanceof RunConfigurationTree.ControllerNode) {
             RunConfigurationTree.ControllerNode node = (RunConfigurationTree.ControllerNode) value;
             ClassTree data = node.getData();
             setIcon(data.getIcon());
             append(data.getName());
             append(" - " + data.getQualifiedName(), SimpleTextAttributes.GRAYED_ATTRIBUTES);
+        }else if (value instanceof RunConfigurationTree.RunConfigurationBeanNode) {
+            RunConfigurationTree.RunConfigurationBeanNode node = (RunConfigurationTree.RunConfigurationBeanNode) value;
+            @Nullable RunConfigurationBean data = node.getData();
+            setIcon(data.getIcon());
+            append(data.getConfigurationName());
+            append(" - " + data.getConfigurationName(), SimpleTextAttributes.GRAYED_ATTRIBUTES);
         } else if (value instanceof RunConfigurationTree.TreeNode<?>) {
             RunConfigurationTree.TreeNode<?> node = (RunConfigurationTree.TreeNode<?>) value;
             append(node.toString());

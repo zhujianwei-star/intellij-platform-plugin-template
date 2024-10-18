@@ -1,6 +1,7 @@
 package com.github.zhujianweistar.change.spring.profile.beans;
 
 import com.github.zhujianweistar.change.spring.profile.view.icon.Icons;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.NavigatablePsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +20,9 @@ public class RunConfigurationBean {
     @Nullable
     private RunConfigurationType type;
     @NotNull
-    private Icon icon = Icons.getTypeIcon(null);
+    private Icon icon;
     private List<String> applicationYmlNames;
+    private String usedYmlName;
 
 
     public RunConfigurationBean(RunConfigurationType type, @Nullable String configurationName, @Nullable NavigatablePsiElement psiElement, @NotNull com.intellij.openapi.module.Module module, @Nullable List<String> applicationYmlNames) {
@@ -29,6 +31,7 @@ public class RunConfigurationBean {
         this.psiElement = psiElement;
         this.module = module;
         this.applicationYmlNames = applicationYmlNames;
+        this.icon = AllIcons.FileTypes.Java;
     }
 
     public void navigate(boolean requestFocus) {
@@ -55,7 +58,15 @@ public class RunConfigurationBean {
 
     public void setType(@Nullable RunConfigurationType type) {
         this.type = type;
-        this.icon = Icons.getTypeIcon(IconNameType.SPRINGBOOT);
+        this.icon = AllIcons.FileTypes.Java;;
+    }
+
+    public String getUsedYmlName() {
+        return usedYmlName;
+    }
+
+    public void setUsedYmlName(String usedYmlName) {
+        this.usedYmlName = usedYmlName;
     }
 
     public @Nullable String getConfigurationName() {

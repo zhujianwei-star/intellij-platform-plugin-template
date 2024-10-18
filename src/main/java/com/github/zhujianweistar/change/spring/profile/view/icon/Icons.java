@@ -13,6 +13,7 @@ package com.github.zhujianweistar.change.spring.profile.view.icon;
 import com.github.zhujianweistar.change.spring.profile.beans.IconNameType;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationType;
 import com.github.zhujianweistar.change.spring.profile.beans.settings.Settings;
+import com.intellij.icons.AllIcons;
 import com.intellij.ui.IconManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,19 +56,18 @@ public class Icons {
     /**
      * 获取方法对应的图标
      *
-     * @param type 请求类型
      * @return icon
      */
     @NotNull
     public static Icon getCheckBoxIcon() {
-        return getCheckBoxIcon(false);
+        return AllIcons.Diff.GutterCheckBox;
     }
 
     public static Icon getCheckBoxIcon(boolean selected) {
         IconType iconType = new CuteIconType();
         if (selected) {
-            return iconType.getSelectIcon(IconNameType.CHECKBOX);
+            return AllIcons.Diff.GutterCheckBoxSelected;
         }
-        return iconType.getDefaultIcon(IconNameType.CHECKBOX);
+        return AllIcons.Diff.GutterCheckBox;
     }
 }

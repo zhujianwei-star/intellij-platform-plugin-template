@@ -42,6 +42,7 @@ public class RightToolWindow extends JPanel {
      */
     private final Project project;
     private final RunConfigurationTree runConfigurationTree;
+    private final ChangeDetail changeDetail;
 
     /**
      * Create the panel.
@@ -50,6 +51,7 @@ public class RightToolWindow extends JPanel {
         super(new BorderLayout());
         this.project = project;
         this.runConfigurationTree = new RunConfigurationTree(project);
+        this.changeDetail = new ChangeDetail(project);
 
 
         AnAction action = ActionManager.getInstance().getAction(ChangeSpringProfileWindowFactory.TOOL_WINDOW_ID + ".Toolbar");

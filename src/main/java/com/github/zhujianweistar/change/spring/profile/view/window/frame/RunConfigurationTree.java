@@ -1,6 +1,7 @@
 package com.github.zhujianweistar.change.spring.profile.view.window.frame;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.github.zhujianweistar.change.spring.profile.beans.ClassTree;
 import com.github.zhujianweistar.change.spring.profile.beans.ModuleTree;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationBean;
@@ -115,12 +116,14 @@ public class RunConfigurationTree extends JBScrollPane {
                     RunConfigurationBeanNode node = new RunConfigurationBeanNode(configurationBean);
                     if (items != null && !items.isEmpty()) {
                         items.forEach(ymlName -> {
-                            YMLEnvBean ymlEnvBean = new YMLEnvBean(ymlName);
+                            YMLEnvBean ymlEnvBean = new YMLEnvBean(ymlName, node);
                             CheckBoxTreeNode<YMLEnvBean> ymlEnvNode = new CheckBoxTreeNode<>(ymlEnvBean);
-                            ymlEnvNode.setChecked(true);
+                            ymlEnvNode.setChecked(false);
                             ymlEnvNode.setAllowsChildren(false);
-                            ymlEnvNode.setUserObject(ymlName);
                             ymlEnvNode.setEnabled(true);
+                            if (StrUtil.isNotBlank(configurationBean.getUsedYmlName()) && ymlName.equals(configurationBean.getUsedYmlName())) {
+                                ymlEnvNode.setChecked(true);
+                            }
                             runConfigurationNodeMap.put(configurationBean, ymlEnvNode);
                             node.add(ymlEnvNode);
                             apiCount.incrementAndGet();
@@ -130,8 +133,9 @@ public class RunConfigurationTree extends JBScrollPane {
                 } else {
                     if (items != null && !items.isEmpty()) {
                         items.forEach(ymlName -> {
-                            YMLEnvBean ymlEnvBean = new YMLEnvBean(ymlName);
+                            YMLEnvBean ymlEnvBean = new YMLEnvBean(ymlName, configurationBean.getModule());
                             CheckBoxTreeNode<YMLEnvBean> ymlEnvNode = new CheckBoxTreeNode<>(ymlEnvBean);
+                            ymlEnvNode.setChecked(false);
                             runConfigurationNodeMap.put(null, ymlEnvNode);
                             moduleNode.add(ymlEnvNode);
                             apiCount.incrementAndGet();

@@ -1,5 +1,6 @@
 package com.github.zhujianweistar.change.spring.profile.utils.scanner;
 
+import cn.hutool.core.util.StrUtil;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationBean;
 import com.github.zhujianweistar.change.spring.profile.beans.RunConfigurationType;
 import com.github.zhujianweistar.change.spring.profile.utils.ProjectConfigUtil;
@@ -52,6 +53,9 @@ public class SpringHelper {
                     List<YAMLFile> applicationEnvYmlFile = getApplicationEnvYmlFile(project, module);
                     // 获取 application-*.yml 文件
                     RunConfigurationBean runConfigurationBean = getRunConfigurationBean(module, springBootApplicationRunConfiguration, applicationEnvYmlFile);
+                    if (StrUtil.isNotBlank(springBootApplicationRunConfiguration.getActiveProfiles())) {
+                        runConfigurationBean.setUsedYmlName(springBootApplicationRunConfiguration.getActiveProfiles());
+                    }
                     runConfigurationBeans.add(runConfigurationBean);
                 }
             }
